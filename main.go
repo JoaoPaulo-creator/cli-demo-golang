@@ -6,33 +6,12 @@ import (
 	"flag"
 	"fmt"
 	"io"
-	"time"
 
 	//"io"
 	"net/http"
+
+	"example.com/teste/structs"
 )
-
-type Response struct {
-	Cep          string `json:"cep"`
-	Address_name string `json:"address_name"`
-}
-
-type Post struct {
-	Title   string `json:"title"`
-	Content string `json:"content"`
-}
-
-type ResponsePost struct {
-	ID        string    `json:"id"`
-	Title     string    `json:"title"`
-	Content   string    `json:"content"`
-	CreatedAt time.Time `json:"createdAt"`
-}
-
-type ResponsePostId struct {
-	Title   string `json:"title"`
-	Content string `json:"content"`
-}
 
 var (
 	help    bool
@@ -53,7 +32,7 @@ func main() {
 
 	endpoint := "http://localhost:3001/posts"
 
-	bodyRequest := Post{
+	bodyRequest := structs.Post{
 		Title:   "Golang cli",
 		Content: "post criado pela cli feita em golang",
 	}
@@ -87,7 +66,7 @@ func main() {
 		}
 		defer resp.Body.Close()
 
-		var posts []ResponsePost
+		var posts []structs.ResponsePost
 		err = json.NewDecoder(resp.Body).Decode(&posts)
 		if err != nil {
 			panic(err)
@@ -106,7 +85,7 @@ func main() {
 		}
 		defer resp.Body.Close()
 
-		var posts ResponsePostId
+		var posts structs.ResponsePostId
 		err = json.NewDecoder(resp.Body).Decode(&posts)
 		if err != nil {
 			panic(err)
