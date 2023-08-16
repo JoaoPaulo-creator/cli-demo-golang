@@ -1,4 +1,4 @@
-package structs
+package responses
 
 type ResponsePostId struct {
 	Title   string `json:"title"`

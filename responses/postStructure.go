@@ -1,4 +1,4 @@
-package structs
+package responses
 
 type Post struct {
 	Title   string `json:"title"`

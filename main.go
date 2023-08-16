@@ -10,7 +10,7 @@ import (
 	//"io"
 	"net/http"
 
-	"example.com/teste/structs"
+	"example.com/teste/responses"
 )
 
 var (
@@ -32,7 +32,7 @@ func main() {
 
 	endpoint := "http://localhost:3001/posts"
 
-	bodyRequest := structs.Post{
+	bodyRequest := responses.Post{
 		Title:   "Golang cli",
 		Content: "post criado pela cli feita em golang",
 	}
@@ -66,7 +66,7 @@ func main() {
 		}
 		defer resp.Body.Close()
 
-		var posts []structs.ResponsePost
+		var posts []responses.ResponsePost
 		err = json.NewDecoder(resp.Body).Decode(&posts)
 		if err != nil {
 			panic(err)
@@ -85,7 +85,7 @@ func main() {
 		}
 		defer resp.Body.Close()
 
-		var posts structs.ResponsePostId
+		var posts responses.ResponsePostId
 		err = json.NewDecoder(resp.Body).Decode(&posts)
 		if err != nil {
 			panic(err)
