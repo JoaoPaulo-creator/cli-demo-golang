@@ -1,13 +1,15 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
 	"flag"
 	"fmt"
+	"io"
+	"time"
 
 	//"io"
 	"net/http"
-	"os"
 )
 
 type Response struct {
@@ -15,40 +17,73 @@ type Response struct {
 	Address_name string `json:"address_name"`
 }
 
-var help bool
-var request bool
+type Post struct {
+	Title   string `json:"title"`
+	Content string `json:"content"`
+}
+
+type ResponsePost struct {
+	ID        string    `json:"id"`
+	Title     string    `json:"title"`
+	Content   string    `json:"content"`
+	CreatedAt time.Time `json:"createdAt"`
+}
+
+var (
+	help    bool
+	request bool
+	resp    bool
+)
 
 func main() {
-
 	flag.BoolVar(&help, "help", false, "Show help")
 	flag.BoolVar(&request, "request", false, "Make an http request")
-
+	flag.BoolVar(&resp, "response", false, "Make an http request to list something")
 	flag.Parse()
 
-	res, err := http.Get("https://cep.awesomeapi.com.br/json/80010010")
+	endpoint := "http://localhost:3001/posts"
 
+	bodyRequest := Post{
+		Title:   "Golang cli",
+		Content: "post criado pela cli feita em golang",
+	}
+
+	jsonData, err := json.Marshal(bodyRequest)
 	if err != nil {
-		fmt.Println("Deu ruim")
-		return
-	}
-	defer res.Body.Close()
-
-	if help {
-		// Print help message and exit
-		flag.PrintDefaults()
-		os.Exit(0)
+		panic(err)
 	}
 
-	//body, err := io.ReadAll(res.Body)
-	//responseBody := string(body)
+	response, err := http.Post(endpoint, "application/json", bytes.NewBuffer(jsonData))
+	if err != nil {
+		panic(err)
+	}
+	defer response.Body.Close()
 
-	var response Response
-	json.NewDecoder(res.Body).Decode(&response)
+	bodyBytes, err := io.ReadAll(response.Body)
+	if err != nil {
+		panic(err)
+	}
 
 	if request {
-		fmt.Println("Cep do maluco: ", response.Cep)
-		fmt.Println("Endereco do maluco : ", response.Address_name)
-		os.Exit(0)
+		responseBody := string(bodyBytes)
+		fmt.Println(responseBody)
+	}
+
+	if resp {
+		// Request a list of posts
+		resp, err := http.Get(endpoint)
+		if err != nil {
+			panic(err)
+		}
+		defer resp.Body.Close()
+
+		var posts []ResponsePost
+		err = json.NewDecoder(resp.Body).Decode(&posts)
+		if err != nil {
+			panic(err)
+		}
+
+		fmt.Println(posts)
 	}
 
 	fmt.Println("Welcome to the Go CLI App!")
